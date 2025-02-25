@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Type {
+  STUDENT
+  FACULTY
+}
+
+model Review {
+  id         String @id @default(uuid())
+  reviewer   User   @relation(fields: [reviewerId], references: [id])
+  reviewerId String
+  comment    String
+}
+
+model Complain {
+  id          String @id @default(uuid())
+  complainer  User   @relation(fields: [complainerId], references: [id])
+  complainerId String
+  complain    String
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  username  String    @unique
+  fullname  String
+  type      Type      @default(STUDENT)
+  isAdmin   Boolean @default(false)
+  password  String
+  phone     String?
+  rating    Int       @default(0)
+  reviews   Review[]
+  complains Complain[]
+}
