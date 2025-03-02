@@ -3,6 +3,8 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { generateAccessToken, generateRefreshToken } from "../utils/generateTokens.js";
 import prisma from "../db/prisma.js";
 import bcrypt from "bcrypt";
+import { hashPassword } from "../utils/hashPassword.js";
+import { Gender } from "@prisma/client";
 
 
 export const loginFunc = async (req: Request, res: Response) => {
@@ -20,7 +22,6 @@ export const loginFunc = async (req: Request, res: Response) => {
   }
 
   const accessToken = await generateAccessToken(user.username);
-  console.log(accessToken);
   const refreshToken = await generateRefreshToken(user.username);
 
   res.cookie("refreshToken", refreshToken, {
@@ -31,15 +32,65 @@ export const loginFunc = async (req: Request, res: Response) => {
     maxAge: 7 * 24 * 60 * 60 * 1000, 
   });
 
-  res.json({ accessToken });
+  res.status(200).json({ accessToken });
   return;
   
 }
 
 
 export const signupFunc = async (req: Request, res: Response) => {
-  
-}
+  try {
+    const { username, email, fullname, gender, password } = req.body;
+
+    let store: any = gender;
+    const updatedGender = store.toUpperCase();
+
+    const existingUser = await prisma.user.findUnique({ where: { username } });
+    if (existingUser) {
+      res.status(400).json({ error: "User with the username already exists" });
+      return;
+    }
+    const existingEmail = await prisma.user.findUnique({ where: { email } });
+    if (existingEmail) {
+      res.status(400).json({ error: "Email has already been used!" });
+      return;
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const defaultProfilePic = "http://localhost:5000/uploads/general/default.png";
+
+    const newUser = await prisma.user.create({
+      data: {
+        username,
+        fullname,
+        gender: updatedGender,
+        email,
+        password: hashedPassword,
+        profilePic: defaultProfilePic, 
+      },
+    });
+
+    console.log(newUser);
+
+    const accessToken = await generateAccessToken(newUser.username);
+    const refreshToken = await generateRefreshToken(newUser.username);
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000, 
+    });
+
+    res.status(201).json({ accessToken });
+    return;
+  } catch (error) {
+    console.error("Signup error:", error);
+    res.status(500).json({ error: "Internal server error" });
+    return;
+  }
+};
+
 
 
 export const logoutFunc = async (req: Request, res: Response) => {
@@ -52,6 +103,8 @@ export const logoutFunc = async (req: Request, res: Response) => {
 
 export const getAuthenticatedUser = async (req: Request, res: Response) => {
   if (!req.user) { res.status(401).json("User not authenticated"); return }
+
+  console.log("Authenticated User:", req.user);
 
   res.json({
     id: req.user.id,

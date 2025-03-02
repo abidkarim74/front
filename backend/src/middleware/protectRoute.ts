@@ -37,7 +37,7 @@ const verify = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET as string) as DecodedToken;
 
-      const user = await prisma.user.findUnique({ where: { id: decoded.id } });
+      const user = await prisma.user.findUnique({ where: { username: decoded.username } });
 
       if (!user) {
         res.status(403).json("User not found!");

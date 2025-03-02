@@ -1,61 +1,70 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { refreshToken, getUser } from "../services/authServices";
+import React, { createContext, useState, useEffect, ReactNode } from "react";
+import { AuthUser } from "../interfaces/authInterfaces.tsx";
+import { getUser } from "../services/authServices.tsx";
+import { refreshToken } from "../services/authServices.tsx";
 
-interface User {
-  accessToken: string;
-  [key: string]: any; 
+interface AuthContextValue {
+  user: AuthUser | null;
+  accessToken: string | null,
+  loading: boolean | null;
+  error: string | null;
+  setUser: React.Dispatch<React.SetStateAction<AuthUser | null>>,
+  setAccessToken: React.Dispatch<React.SetStateAction<string | null>>;
+  setError: React.Dispatch<React.SetStateAction<string | null>>;
+  setLoading: React.Dispatch<React.SetStateAction<boolean | null>>;
 }
 
-interface AuthContextType {
-  user: User | null;
-  setUser: React.Dispatch<React.SetStateAction<User | null>>;
-  loading: boolean;
-  accessToken:string | null
-}
+export const AuthContext = createContext<AuthContextValue | null>(null);
 
-const AuthContext = createContext<AuthContextType | null>(null);
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
-export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [accessToken, setAccessToken] = useState<null|string>(null);
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [user, setUser] = useState<AuthUser | null >(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean | null>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const initializeUser = async () => {
+    const fetchUser = async () => {
       try {
-        const accessToken = await refreshToken(setUser);
-
-        if (accessToken) {
-          const res = await getUser(accessToken);
-          console.log("User: ",res);
-          setUser(res);
-          setAccessToken(accessToken);
+        setLoading(true);
+        const accessToken = await refreshToken();
+          if (accessToken) {
+            const res = await getUser(accessToken);
+            console.log("User: ",res);
+            setUser(res);
+            setAccessToken(accessToken);
         }
-      } catch (error) {
-        console.error("Error initializing user:", error);
-      } finally {
+
+      } catch (err: any) {
+        setError(err.message);
+        
+      } finally { 
         setLoading(false);
       }
+        
     };
 
-    initializeUser();
+    fetchUser();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, setUser, loading, accessToken }}>
-      {children}
+    <AuthContext.Provider
+      value={{
+        user,
+        accessToken,
+        loading,
+        error,
+        setAccessToken,
+        setError,
+        setUser,
+        setLoading
+      }}
+    >
+      {loading ? <div>Loading...</div> : children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
 };

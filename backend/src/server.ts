@@ -1,16 +1,21 @@
 import express from "express";
-import { Request, Response } from "express";
 import morgan from "morgan";
 import cors from "cors";
 import prisma from "./db/prisma.js";
 import authRoutes from "./routes/auth.routes.js";
+import updateRoutes from "./routes/update.routes.js";
+import generalRoutes from "./routes/general.routes.js"
+import messagesRoutes from "./routes/messages.routes.js"
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import { app, server } from "./socket/socket.js";
+
+
 
 
 dotenv.config();
 
-const app = express();
+// const app = express();
 const PORT = 5000;
 
 
@@ -23,6 +28,11 @@ app.use(cors({
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(cookieParser());
+app.use("/uploads", express.static("uploads"));
+
+
+
+
 
 
 // Database Connection
@@ -40,6 +50,9 @@ connectDB();
 
 // Routes
 app.use("/auth", authRoutes);
+app.use("/update", updateRoutes);
+app.use("/general", generalRoutes);
+app.use("/chat", messagesRoutes);
 
 
 // DATABASE SHUTDOWN
@@ -51,6 +64,6 @@ process.on("SIGINT", async () => {
 
 
 // SERVER LISTENING
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`🚀 Server running at http://127.0.0.1:${PORT}/`);
 });

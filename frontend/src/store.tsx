@@ -1,7 +1,18 @@
-{/* {authUser && <p>Welcome { authUser.fullName}</p>}
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./context/ProtectedRoutes";
+import Dashboard from "./pages/Dashboard";
+import LoginForm from "./pages/Login";
+
+
+function App() {
+  return (
+    // <Router>
       <Routes>
-        {/* <Route path='/' element={<ProtectedRoute accessToken={accessToken}><Home /></ProtectedRoute>}></Route> */}
-        {/* <Route path='/signup' element={!authUser?<Signup></Signup>: <Navigate to={"/"}></Navigate>}></Route> */}
-        <Route path='/login' element={<Login></Login>}></Route>
-        
-      </Routes>  */}
+        <Route path="/login" element={<LoginForm />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<Dashboard />} />
+        </Route>
+      </Routes>
+    // </Router>
+  );
+}
