@@ -21,6 +21,11 @@ const CreateRidePost = () => {
   const [error, setError] = useState<string| null>(null);
 
   const auth = useContext(AuthContext);
+  if (!auth) {
+    console.log(loading);
+    console.log(error);
+  }
+ 
 
   if (!auth) {
     return null;

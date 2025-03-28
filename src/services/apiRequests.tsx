@@ -10,6 +10,7 @@ export const postRequest = async (
   try {
     setError(null);
     setLoading(true);
+    console.log(accessToken);
     
     const res = await axiosJWT.post(url, data);
     console.log("Response: ",res);

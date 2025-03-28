@@ -6,7 +6,7 @@ import { useTheme } from "../../context/themeContext"; // Assuming you have a th
 
 const DropDown = () => {
   const auth = useContext(AuthContext);
-  const { darkMode } = useTheme();
+  // const { darkMode } = useTheme();
   const [loading, setLoading] = useState(false);
 
   if (!auth) return <div className="text-gray-500">Loading...</div>;

@@ -18,6 +18,8 @@ const LoginForm = () => {
       return;
     }
 
+    console.log(error);
+
     const accessToken = await loginUser(
       username,
       password,

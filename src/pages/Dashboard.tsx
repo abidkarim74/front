@@ -3,12 +3,10 @@ import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import RidePosts from "../components/RidePosts";
-import { useTheme } from "../context/themeContext";
 import HomeRightBar from "../components/HomeRightBar";
 import HomeLeftBar from "../components/HomeLeftBar";
 
 const Dashboard = () => {
-  const { darkMode } = useTheme(); 
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (

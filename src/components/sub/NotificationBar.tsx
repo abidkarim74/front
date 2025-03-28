@@ -21,6 +21,8 @@ const NotificationBar = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       const response = await getRequest(url, accessToken, setLoading, setError);
+
+      console.log(error);
   
       console.log("Response: ", response);
       

@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { getRequest } from "../../services/apiRequests";
 import { AuthContext } from "../../context/authContext";
-import { FaUserCircle } from "react-icons/fa";
 
 type ConversationBarProps = {
   setCurrentChat: React.Dispatch<React.SetStateAction<string | null>>;

@@ -19,12 +19,14 @@ const UpdateProfile = () => {
   const { accessToken } = authContext;
 
   useEffect(() => {
+    
     const fetchUserData = async () => {
       if (!params.userId) return;
       setLoading(true);
       
         const userData = await getRequest(`/general/profile/${params.userId}`, accessToken,setLoading, setError);
-        setUser(userData);
+      setUser(userData);
+      console.log(user);
       
     };
 

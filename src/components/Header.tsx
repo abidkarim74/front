@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useSyncExternalStore } from "react";
+import { useState, useEffect, useContext } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBars,
