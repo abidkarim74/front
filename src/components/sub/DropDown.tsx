@@ -2,7 +2,6 @@ import { useContext, useState } from "react";
 import { AuthContext } from "../../context/authContext";
 import { logoutUser } from "../../services/authServices";
 import { Link } from "react-router-dom";
-import { useTheme } from "../../context/themeContext"; // Assuming you have a theme context
 
 const DropDown = () => {
   const auth = useContext(AuthContext);
