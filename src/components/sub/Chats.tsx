@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { getRequest, postRequest } from "../../services/apiRequests";
 import { AuthContext } from "../../context/authContext";
 import { useSocketContext } from "../../context/socketContext";
-import useChatScroll from "../../hooks/useScroll";
+// import useChatScroll from "../../hooks/useScroll";
 
 type ChatsProps = {
   currentChat: string | null;
@@ -14,13 +14,16 @@ const Chats: React.FC<ChatsProps> = ({ currentChat }) => {
   const [chats, setChats] = useState<any[]>([]);
   const [message, setMessage] = useState<string>("");
 
+  console.log(chats);
+  console.log(error);
+
   const auth = useContext(AuthContext);
   if (!auth) return null;
 
   const { socket, onlineUsers } = useSocketContext();
   const accessToken = auth.accessToken;
 
-  const messagesContainerRef = useChatScroll(chats);
+  // const messagesContainerRef = useChatScroll(chats);
 
   useEffect(() => {
     if (!currentChat) return;
@@ -109,7 +112,7 @@ const Chats: React.FC<ChatsProps> = ({ currentChat }) => {
         ))}
       </div>
 
-      {/* Messages Area */}
+      {/* Messages Area
       <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-2">
         {loading ? (
           <p className="text-center text-gray-500">Loading messages...</p>
@@ -127,7 +130,7 @@ const Chats: React.FC<ChatsProps> = ({ currentChat }) => {
             </div>
           ))
         )}
-      </div>
+      </div> */}
 
       {/* Message Input */}
       <form className="flex p-3 border-t bg-gray-50 border-gray-200" onSubmit={sendMessage}>
