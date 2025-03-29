@@ -51,41 +51,56 @@ const Chats: React.FC<ChatsProps> = ({ currentChat }) => {
     getMessages();
   }, [currentChat, accessToken]);
 
-  useEffect(() => {
-    if (!socket || !currentChat) return;
+ useEffect(() => {
+  if (!socket || !currentChat) return;
 
-    const handleNewMessage = (newMessage: any) => {
-      if (newMessage.conversationId === currentChat) {
-        setChats((prevChats) => [...prevChats, newMessage]);
-      }
-    };
-
-    socket.on("newMessage", handleNewMessage);
-
-    return () => {
-      socket.off("newMessage", handleNewMessage);
-    };
-  }, [socket, currentChat]);
-
-  const sendMessage = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!message.trim()) return;
-
-    try {
-      const newMsg = await postRequest(
-        { message },
-        `/chat/send-message/${currentChat}`,
-        accessToken,
-        setLoading,
-        setError
-      );
-
-      socket?.emit("sendMessage", newMsg);
-      setMessage("");
-    } catch (error: any) {
-      setError(error?.message || "Failed to send message");
+  const handleNewMessage = (newMessage: any) => {
+    if (newMessage.conversationId === currentChat) {
+      setChats((prevChats) => [...prevChats, newMessage]);
     }
   };
+
+  // Attach event listener
+  socket.on("newMessage", handleNewMessage);
+
+  // Cleanup function to remove listener when component unmounts or currentChat changes
+  return () => {
+    socket.off("newMessage", handleNewMessage);
+  };
+}, [socket, currentChat]);
+
+
+
+const sendMessage = async (event: React.FormEvent) => {
+  event.preventDefault();
+  if (!message.trim()) return;
+
+  // Optimistically update UI
+  const tempMsg = {
+    sender: { id: auth.user?.id, fullname: auth.user?.fullname },
+    message,
+    conversationId: currentChat,
+    tempId: Date.now(), // Temporary ID to prevent duplicate UI updates
+  };
+
+  setChats((prevChats) => [...prevChats, tempMsg]); // Update UI immediately
+
+  setMessage(""); // Clear input field
+
+  try {
+    const newMsg = await postRequest(
+      { message },
+      `/chat/send-message/${currentChat}`,
+      accessToken,
+      setLoading,
+      setError
+    );
+
+    socket?.emit("sendMessage", newMsg);
+  } catch (error: any) {
+    setError(error?.message || "Failed to send message");
+  }
+};
 
   return (
     <div className="flex flex-col h-full rounded-xl shadow-lg border bg-white text-gray-900 border-gray-200">
