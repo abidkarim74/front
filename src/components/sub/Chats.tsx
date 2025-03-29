@@ -112,8 +112,8 @@ const Chats: React.FC<ChatsProps> = ({ currentChat }) => {
         ))}
       </div>
 
-      {/* Messages Area
-      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-2">
+      Messages Area
+      <div className="flex-1 overflow-y-auto p-4 space-y-2">
         {loading ? (
           <p className="text-center text-gray-500">Loading messages...</p>
         ) : error ? (
@@ -130,7 +130,7 @@ const Chats: React.FC<ChatsProps> = ({ currentChat }) => {
             </div>
           ))
         )}
-      </div> */}
+      </div>
 
       {/* Message Input */}
       <form className="flex p-3 border-t bg-gray-50 border-gray-200" onSubmit={sendMessage}>
