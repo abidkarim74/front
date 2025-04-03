@@ -21,6 +21,11 @@ const CreateRidePost = () => {
   const [fromSuggestions, setFromSuggestions] = useState<Location[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  if (error) {
+    console.log(error);
+  }
+
   const [selectedFromLocation, setSelectedFromLocation] = useState<
     [number, number] | null
   >(null);
@@ -35,17 +40,17 @@ const CreateRidePost = () => {
   }
 
   // Dynamic styles based on dark mode
-  const containerStyles = darkMode
-    ? "bg-gray-900 text-white border-gray-700"
-    : "bg-white text-gray-900 border-gray-200";
+  // const containerStyles = darkMode
+  //   ? "bg-gray-900 text-white border-gray-700"
+  //   : "bg-white text-gray-900 border-gray-200";
 
-  const inputStyles = darkMode
-    ? "bg-gray-800 border-gray-600 focus:ring-blue-500 hover:border-blue-400"
-    : "bg-gray-50 border-gray-300 focus:ring-blue-400 hover:border-blue-300";
+  // const inputStyles = darkMode
+  //   ? "bg-gray-800 border-gray-600 focus:ring-blue-500 hover:border-blue-400"
+  //   : "bg-gray-50 border-gray-300 focus:ring-blue-400 hover:border-blue-300";
 
-  const suggestionStyles = darkMode
-    ? "bg-gray-800 border-gray-600 hover:bg-gray-700"
-    : "bg-white border-gray-200 hover:bg-gray-100";
+  // const suggestionStyles = darkMode
+  //   ? "bg-gray-800 border-gray-600 hover:bg-gray-700"
+  //   : "bg-white border-gray-200 hover:bg-gray-100";
 
   const fetchLocations = async (query: string, setSuggestions: any) => {
     if (query.length < 3) {

@@ -19,6 +19,8 @@ const App: React.FC = () => {
   const { socket } = useSocketContext();
   const [notifications, setNotifications] = useState<any[]>([]);
 
+  console.log(notifications);
+
   useEffect(() => {
     if (!socket) return;
 

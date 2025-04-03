@@ -15,6 +15,9 @@ const RidePosts = () => {
   const [posts, setPosts] = useState<any[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [notification, setNotification] = useState<string>("You got a notification");
+
+  setSuccessMessage("Dsa");
+  setNotification("s");
   
   const url = "/rides/ride-requests";
   const postUrl = "/notifications/create";
@@ -31,6 +34,7 @@ const RidePosts = () => {
   }, [fetchRidePosts]);
 
   const handleAccept = useCallback(async (postId: string, posterId: string) => {
+    console.log(postId);
     const response = await postRequest(
       { userId: posterId, message: notification },
       postUrl,
