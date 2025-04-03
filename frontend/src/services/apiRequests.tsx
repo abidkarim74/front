@@ -3,27 +3,26 @@ import axiosJWT from "./axiosInstance";
 export const postRequest = async (
   data: any,
   url: string,
-  accessToken:string | null,
-  setLoading:React.Dispatch<React.SetStateAction<boolean>>,
-  setError: React.Dispatch<React.SetStateAction<null | string>>
+  accessToken: string | null,
+  setLoading?: React.Dispatch<React.SetStateAction<boolean>>, 
+  setError?: React.Dispatch<React.SetStateAction<null | string>>
 ) => {
   try {
-    setError(null);
-    setLoading(true);
-    
+    if (setError) setError(null);
+    if (setLoading) setLoading(true); 
+    console.log(accessToken);
+
     const res = await axiosJWT.post(url, data);
-    console.log("Response: ",res);
+    console.log("Response: ", res);
 
     return res.data;
-
   } catch (err: any) {
-    setError(err.message);
-    
+    if (setError) setError(err.message); 
   } finally {
-    setLoading(false);
-
+    if (setLoading) setLoading(false); 
   }
-}
+};
+
 
 
 export const getRequest = async (
@@ -42,7 +41,6 @@ export const getRequest = async (
         },
         withCredentials: true,
       });
-    //console.log("Conversations: ", res.data);
 
     return res.data;
 
@@ -54,4 +52,3 @@ export const getRequest = async (
 
   }
 }
-

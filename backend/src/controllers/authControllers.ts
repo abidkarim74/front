@@ -92,7 +92,6 @@ export const signupFunc = async (req: Request, res: Response) => {
 };
 
 
-
 export const logoutFunc = async (req: Request, res: Response) => {
   console.log(req.url);
   res.clearCookie("refreshToken", { path: "/" });
@@ -100,20 +99,31 @@ export const logoutFunc = async (req: Request, res: Response) => {
   return;
 }
 
-
 export const getAuthenticatedUser = async (req: Request, res: Response) => {
-  if (!req.user) { res.status(401).json("User not authenticated"); return }
+  if (!req.user) {
+    res.status(401).json({ error: "User not authenticated" });
+    return;
+  }
 
   console.log("Authenticated User:", req.user);
 
-  res.json({
-    id: req.user.id,
-    username: req.user.username,
-    fullname: req.user.fullname,
-  });
-  return;
-}
+  try {
+    const authUser = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { id: true, username: true, fullname: true, profilePic: true },
+    });
 
+    if (!authUser) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    res.json(authUser);
+  } catch (error) {
+    console.error("Error fetching authenticated user:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
 export const refreshTokenFunc = async (req: Request, res: Response) => {
   const refreshToken = req.cookies.refreshToken;

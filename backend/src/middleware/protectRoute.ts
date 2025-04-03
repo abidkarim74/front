@@ -34,6 +34,7 @@ const verify = async (req: Request, res: Response, next: NextFunction) => {
       return;
     }
 
+
     try {
       const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET as string) as DecodedToken;
 

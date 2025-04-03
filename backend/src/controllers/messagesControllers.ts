@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import prisma from "../db/prisma.js";
 import { getReceiverSocketId, io } from "../socket/socket.js";
 
+
 export const getUserConversations = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
@@ -103,7 +104,6 @@ export const startConversation = async (req: Request, res: Response) => {
       return;
     }
 
-    // Fetch all conversations that include both users
     const existingConversations = await prisma.conversation.findMany({
       where: {
         AND: [
@@ -114,15 +114,12 @@ export const startConversation = async (req: Request, res: Response) => {
       include: { users: true },
     });
 
-    // Ensure it's a private conversation (only 2 users)
     const existingConversation = existingConversations.find(conv => conv.users.length === 2);
 
     if (existingConversation) {
       res.json(existingConversation);
       return;
     }
-
-    // Create a new conversation
     const newConversation = await prisma.conversation.create({
       data: {
         name: "",
@@ -141,6 +138,7 @@ export const startConversation = async (req: Request, res: Response) => {
   }
 };
 
+
 export const sendMessage = async (req: Request, res: Response) => {
   try {
     const conversationId = req.params.conversationId;
@@ -150,15 +148,22 @@ export const sendMessage = async (req: Request, res: Response) => {
       res.status(401).json({ error: "You are not authenticated!" });
       return;
     }
-
     if (!conversationId) {
       res.status(400).json({ error: "No conversation ID provided!" });
       return;
     }
 
+    const { message, currentDateTime, id } = req.body;
+    console.log(currentDateTime);
+    console.log(id);
+    if (!message) {
+      res.status(400).json({ error: "Message text is required!" });
+      return;
+    }
+
     const conversation = await prisma.conversation.findUnique({
       where: { id: conversationId },
-      include: { users: true },
+      select: { users: { select: { id: true } } }, 
     });
 
     if (!conversation) {
@@ -166,48 +171,42 @@ export const sendMessage = async (req: Request, res: Response) => {
       return;
     }
 
-    const { message } = req.body;
-    if (!message) {
-      res.status(400).json({ error: "Message text is required!" });
-      return;
-    }
+    const receiver = conversation.users.find((user) => user.id !== senderId);
+    const receiverId = receiver?.id || null;
 
-    const newMessage = await prisma.message.create({
-      data: {
-        message: message,
-        sender: {
-          connect: { id: senderId },
+    
+    const [newMessage] = await prisma.$transaction([
+      prisma.message.create({
+        data: {
+          message,
+          sender: { connect: { id: senderId } },
+          conversation: { connect: { id: conversationId } },
+          createdAt: currentDateTime,
+          editedAt: currentDateTime,
+          id:id
         },
-        conversation: {
-          connect: { id: conversationId },
+        include: {
+          sender: {
+            select: { id: true, username: true, fullname: true, profilePic: true },
+          },
         },
-      },
-      include: {
-        sender: {
-          select: { id: true, username: true, fullname: true, profilePic: true },
-        },
-      },
+      }),
+    ]);
+
+    setImmediate(() => {
+      const receiverSocketId = receiverId ? getReceiverSocketId(receiverId) : null;
+      const senderSocketId = getReceiverSocketId(senderId);
+
+      if (receiverSocketId) io.to(receiverSocketId).emit("newMessage", newMessage);
+      if (senderSocketId) io.to(senderSocketId).emit("newMessage", newMessage);
     });
 
-    // Get receiver ID
-    const receiver = conversation.users.find((user) => user.id !== senderId);
-    const receiverSocketId = receiver ? getReceiverSocketId(receiver.id) : null;
-    const senderSocketId = getReceiverSocketId(senderId);
-
-    console.log("Receiver ID:", receiver?.id, "Socket ID:", receiverSocketId);
-
-    // Emit the message to both the sender and the receiver
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit("newMessage", newMessage);
-    }
-    
-    if (senderSocketId) {
-      io.to(senderSocketId).emit("newMessage", newMessage);
-    }
-
     res.status(201).json(newMessage);
+    return;
   } catch (err: any) {
     console.error("Error sending message:", err);
     res.status(500).json({ error: "Internal server error!" });
+    return;
   }
 };
+

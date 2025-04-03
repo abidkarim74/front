@@ -17,7 +17,7 @@ export const useSocketContext = (): ISocketContext => {
 	return context;
 };
 
-const socketURL = import.meta.env.MODE === "development" ? "http://localhost:5000" : "/";
+const socketURL = "https://deploy1-production-8cf4.up.railway.app";
 
 const SocketContextProvider = ({ children }: { children: ReactNode }) => {
 	const socketRef = useRef<Socket | null>(null);
@@ -25,7 +25,7 @@ const SocketContextProvider = ({ children }: { children: ReactNode }) => {
 	const auth = useContext(AuthContext);
 
 	if (!auth) {
-		return null; // ✅ Fix: Prevents breaking the component tree
+		return null; 
 	}
 
 	useEffect(() => {
@@ -36,7 +36,7 @@ const SocketContextProvider = ({ children }: { children: ReactNode }) => {
 			socketRef.current = socket;
 
 			socket.on("getOnlineUsers", (users: string[]) => {
-				setOnlineUsers(() => users); // ✅ Fix: Ensures state is updated correctly
+				setOnlineUsers(() => users); 
 			});
 
 			return () => {
@@ -49,7 +49,7 @@ const SocketContextProvider = ({ children }: { children: ReactNode }) => {
 				socketRef.current = null;
 			}
 		}
-	}, [auth.user, auth.loading, auth.accessToken]); // ✅ Fix: Add missing dependency
+	}, [auth.user, auth.loading, auth.accessToken]); 
 
 	return (
 		<SocketContext.Provider value={{ socket: socketRef.current, onlineUsers }}>

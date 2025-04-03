@@ -13,10 +13,9 @@ const io = new Server(server, {
   },
 });
 
-// Store user socket mappings
-const userSocketMap: { [key: string]: string } = {}; // { userId: socketId }
+const userSocketMap: { [key: string]: string } = {}; 
 
-export const getReceiverSocketId = (receiverId: string) => {
+export const getReceiverSocketId = (receiverId: string ) => {
   return userSocketMap[receiverId] || null;
 };
 
@@ -30,7 +29,6 @@ io.on("connection", (socket) => {
     console.log(`✅ User ${userId} mapped to socket ${socket.id}`);
   }
 
-  // Notify all users about the online users list
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
   socket.on("disconnect", () => {
@@ -41,7 +39,6 @@ io.on("connection", (socket) => {
       console.log(`❌ Removed user ${userId} from socket mapping.`);
     }
 
-    // Update online users list
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
   });
 });
