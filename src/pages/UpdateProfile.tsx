@@ -54,7 +54,7 @@ const UpdateProfile = () => {
   
     try {
       setLoading(true);
-      const response = await fetch(`http://127.0.0.1:5000/update/uploads-profilepic/${params.userId}`, {
+      const response = await fetch(`https://deploy1-production-8cf4.up.railway.app/update/uploads-profilepic/${params.userId}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${accessToken}`, 
