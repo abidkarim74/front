@@ -346,7 +346,7 @@ const RidePosts = () => {
                         <p className="text-sm font-medium text-gray-500">
                           Vehicle
                         </p>
-                        <p className="text-sm">{Name}</p>
+                        <p className="text-sm">{"das"}</p>
                       </div>
                     </div>
                   </div>
